@@ -175,13 +175,27 @@ export default function DashboardPage() {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 py-6">
         {tab === 'overview' && flow && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <StatCard label="總流量" value={fmtBytes(flow.total_bytes || 0)} color="blue" />
-            <StatCard label="開始時間" value={flow.start_time?.replace('T', ' ').slice(0, 19) || 'N/A'} color="green" />
-            <StatCard label="結束時間" value={flow.end_time?.replace('T', ' ').slice(0, 19) || 'N/A'} color="purple" />
-            <StatCard label="協定數" value={String(Object.keys(events).length)} color="orange" />
-            <StatCard label="異常數" value={String(anomalies.length)} color={anomalies.length > 0 ? 'red' : 'green'} />
-            <StatCard label="Top IP 連線" value={String(topIp.length)} color="indigo" />
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <StatCard label="總流量" value={fmtBytes(flow.total_bytes || 0)} color="blue" />
+              <StatCard label="開始時間" value={flow.start_time?.replace('T', ' ').slice(0, 19) || 'N/A'} color="green" />
+              <StatCard label="結束時間" value={flow.end_time?.replace('T', ' ').slice(0, 19) || 'N/A'} color="purple" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <StatCard label="協定數" value={String(Object.keys(events).length)} color="orange" />
+              <StatCard label="異常數" value={String(anomalies.length)} color={anomalies.length > 0 ? 'red' : 'green'} />
+              <StatCard label="Top IP 連線" value={String(topIp.length)} color="indigo" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <StatCard label="DNS 查詢數" value={String(dns?.total_queries?.toLocaleString() ?? '0')} color="blue" />
+              <StatCard label="HTTP 請求數" value={String(http?.total_requests?.toLocaleString() ?? '0')} color="orange" />
+              <StatCard label="TLS 握手數" value={String(tls?.total_handshakes?.toLocaleString() ?? '0')} color="purple" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <StatCard label="國家數" value={String(Object.keys(geo).filter(k => k !== 'LOCAL' && k !== 'UNKNOWN').length)} color="green" />
+              <StatCard label="DNS 隧道嫌疑" value={String(dns?.tunnel_suspects?.length ?? 0)} color={dns?.tunnel_suspects?.length > 0 ? 'red' : 'green'} />
+              <StatCard label="NXDOMAIN 數" value={String(dns?.nxdomain_list?.length ?? 0)} color={dns?.nxdomain_list?.length > 0 ? 'orange' : 'green'} />
+            </div>
           </div>
         )}
         {tab === 'flow' && <FlowChart data={flow} />}

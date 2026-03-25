@@ -15,12 +15,14 @@ export default function ProgressModal({ taskId, onDone, onError }: Props) {
   stepRef.current = step;
 
   useEffect(() => {
+    let cancelled = false;
     const token = localStorage.getItem('access_token');
     const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
     const ws = new WebSocket(`${proto}://${window.location.host}/ws/task/${taskId}?token=${token}`);
     wsRef.current = ws;
 
     ws.onmessage = (e) => {
+      if (cancelled) return;
       const data = JSON.parse(e.data);
       if (data.step === 'ping') return; // heartbeat, ignore
       setStep(data.step);
@@ -31,19 +33,21 @@ export default function ProgressModal({ taskId, onDone, onError }: Props) {
     };
 
     ws.onerror = () => {
+      if (cancelled) return;
       if (stepRef.current !== 'done') {
         setStep('ws_error');
         setMessage('WebSocket 連線失敗，任務仍在背景執行中');
       }
     };
     ws.onclose = () => {
+      if (cancelled) return;
       if (stepRef.current !== 'done' && stepRef.current !== 'error' && stepRef.current !== 'ws_error') {
         setStep('ws_error');
         setMessage('WebSocket 連線中斷，任務仍在背景執行中');
       }
     };
 
-    return () => { ws.close(); };
+    return () => { cancelled = true; ws.close(); };
   }, [taskId]);
 
   const stepLabels: Record<string, string> = {
