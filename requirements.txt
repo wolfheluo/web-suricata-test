@@ -1,0 +1,27 @@
+# Production dependencies
+fastapi
+uvicorn[standard]
+gunicorn
+pydantic-settings
+sqlalchemy[asyncio]
+aiomysql
+pymysql
+alembic
+celery[redis]
+redis
+python-jose[cryptography]
+passlib[bcrypt]
+bcrypt==4.0.1
+python-multipart
+websockets
+geoip2
+maxminddb
+matplotlib
+
+# Test dependencies
+httpx
+pytest
+pytest-asyncio
+Faker
+pytest-cov
+aiosqlite

@@ -1,0 +1,25 @@
+# Celery Worker 服務（參考用 systemd unit）
+# aaPanel 環境下使用 Supervisor 守護程序管理器，不需手動使用此檔案。
+
+[Unit]
+Description=Suricata Web Celery Worker
+After=network.target redis.service mysql.service
+
+[Service]
+Type=simple
+User=www
+Group=www
+WorkingDirectory=/www/wwwroot/web-suricata-test
+EnvironmentFile=/www/wwwroot/web-suricata-test/.env
+ExecStart=/www/wwwroot/web-suricata-test/.venv/bin/celery \
+    -A app.workers.celery_app worker \
+    --concurrency=2 \
+    -Q analysis \
+    --loglevel=info
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
