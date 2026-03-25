@@ -25,6 +25,7 @@ const TABS = [
 export default function DashboardPage() {
   const { id } = useParams<{ id: string }>();
   const [tab, setTab] = useState('overview');
+  const [task, setTask] = useState<any>(null);
   const [flow, setFlow] = useState<any>(null);
   const [topIp, setTopIp] = useState<any[]>([]);
   const [geo, setGeo] = useState<Record<string, number>>({});
@@ -35,9 +36,8 @@ export default function DashboardPage() {
   const [tls, setTls] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const loadResults = () => {
     if (!id) return;
-    setLoading(true);
     Promise.all([
       client.get(`/api/v1/tasks/${id}/flow`),
       client.get(`/api/v1/tasks/${id}/top_ip`),
@@ -56,8 +56,33 @@ export default function DashboardPage() {
       setDns(d.data.data);
       setHttp(h.data.data);
       setTls(tl.data.data);
+    }).catch(() => {});
+  };
+
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    client.get(`/api/v1/tasks/${id}`).then(({ data }) => {
+      setTask(data.data);
+      if (data.data.status === 'done') {
+        loadResults();
+      }
     }).finally(() => setLoading(false));
   }, [id]);
+
+  // Auto-refresh when task is running
+  useEffect(() => {
+    if (!task || (task.status !== 'running' && task.status !== 'pending')) return;
+    const timer = setInterval(() => {
+      client.get(`/api/v1/tasks/${id}`).then(({ data }) => {
+        setTask(data.data);
+        if (data.data.status === 'done') {
+          loadResults();
+        }
+      });
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [task?.status, id]);
 
   const fmtBytes = (b: number) => {
     if (b >= 1 << 30) return `${(b / (1 << 30)).toFixed(2)} GB`;
@@ -68,23 +93,66 @@ export default function DashboardPage() {
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-500">載入中...</div>;
 
+  const statusLabels: Record<string, string> = {
+    pending: '等待中',
+    running: '分析中...',
+    done: '完成',
+    failed: '失敗',
+  };
+
+  const isReady = task?.status === 'done';
+
   return (
     <div className="min-h-screen bg-gray-100">
       <nav className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
           <h1 className="text-xl font-bold text-gray-800">分析儀表板</h1>
           <div className="flex gap-3">
-            <a href={`/api/v1/tasks/${id}/report`} target="_blank" className="text-blue-600 hover:underline text-sm">
-              下載報告
-            </a>
-            <a href={`/api/v1/tasks/${id}/export?format=csv`} target="_blank" className="text-blue-600 hover:underline text-sm">
-              匯出 CSV
-            </a>
+            {isReady && (
+              <>
+                <a href={`/api/v1/tasks/${id}/report`} target="_blank" className="text-blue-600 hover:underline text-sm">
+                  下載報告
+                </a>
+                <a href={`/api/v1/tasks/${id}/export?format=csv`} target="_blank" className="text-blue-600 hover:underline text-sm">
+                  匯出 CSV
+                </a>
+              </>
+            )}
             <Link to="/tasks" className="text-gray-500 hover:text-gray-700 text-sm">返回列表</Link>
           </div>
         </div>
       </nav>
 
+      {/* Task status banner */}
+      {task && !isReady && (
+        <div className="max-w-7xl mx-auto px-4 mt-6">
+          <div className={`rounded-lg shadow p-8 text-center ${
+            task.status === 'failed' ? 'bg-red-50' : 'bg-blue-50'
+          }`}>
+            <div className={`text-lg font-semibold mb-2 ${
+              task.status === 'failed' ? 'text-red-700' : 'text-blue-700'
+            }`}>
+              {statusLabels[task.status] || task.status}
+            </div>
+            <div className="text-sm text-gray-600 mb-1">任務：{task.name}</div>
+            <div className="text-sm text-gray-500">NAS 路徑：{task.nas_project}</div>
+            {task.status === 'running' && (
+              <div className="mt-4 flex justify-center">
+                <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+              </div>
+            )}
+            {task.status === 'running' && (
+              <div className="mt-2 text-xs text-gray-400">每 3 秒自動重新整理狀態</div>
+            )}
+            {task.error_msg && (
+              <div className="mt-3 text-sm text-red-600">錯誤：{task.error_msg}</div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {isReady && (
+        <>
       {/* Tabs */}
       <div className="max-w-7xl mx-auto px-4 mt-4">
         <div className="flex gap-1 bg-white rounded-lg shadow p-1 overflow-x-auto">
@@ -125,6 +193,8 @@ export default function DashboardPage() {
         {tab === 'http' && <HttpPanel data={http} />}
         {tab === 'tls' && <TlsPanel data={tls} />}
       </div>
+      </>
+      )}
     </div>
   );
 }

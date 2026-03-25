@@ -134,15 +134,19 @@ async def ws_task_progress(websocket: WebSocket, task_id: str):
 
     try:
         while True:
-            msg = await asyncio.wait_for(pubsub.get_message(ignore_subscribe_messages=True, timeout=1.0), timeout=5.0)
+            msg = await pubsub.get_message(ignore_subscribe_messages=True, timeout=1.0)
             if msg and msg["type"] == "message":
                 data = json.loads(msg["data"])
                 await websocket.send_json(data)
                 if data.get("step") in ("done", "error"):
                     break
-    except (WebSocketDisconnect, asyncio.TimeoutError, asyncio.CancelledError):
-        pass
-    except Exception:
+            else:
+                # No message yet — send ping to keep connection alive
+                try:
+                    await websocket.send_json({"step": "ping", "progress": -1})
+                except Exception:
+                    break
+    except (WebSocketDisconnect, asyncio.CancelledError):
         pass
     finally:
         await pubsub.unsubscribe(channel)

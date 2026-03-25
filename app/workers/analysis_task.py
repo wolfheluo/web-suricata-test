@@ -36,6 +36,7 @@ def _send_ws_progress(task_id: str, step: str, progress: int, message: str = "")
 
 @celery_app.task(bind=True, max_retries=0, time_limit=3600)
 def run_full_analysis(self, task_id: str):
+    from app.models.user import User  # noqa: F401 — required for FK resolution
     from app.models.task import AnalysisResult, Task
     from app.services.nas_service import nas_service
 

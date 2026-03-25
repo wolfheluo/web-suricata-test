@@ -109,11 +109,9 @@ export default function TaskListPage() {
                         {new Date(t.created_at).toLocaleString('zh-TW')}
                       </td>
                       <td className="px-4 py-3 space-x-2">
-                        {t.status === 'done' && (
-                          <Link to={`/dashboard/${t.id}`} className="text-blue-600 hover:underline text-xs">
-                            查看
-                          </Link>
-                        )}
+                        <Link to={`/dashboard/${t.id}`} className="text-blue-600 hover:underline text-xs">
+                          查看
+                        </Link>
                         <button
                           onClick={() => handleDelete(t.id)}
                           className="text-red-500 hover:underline text-xs"

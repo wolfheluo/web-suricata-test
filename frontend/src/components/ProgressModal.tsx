@@ -11,6 +11,8 @@ export default function ProgressModal({ taskId, onDone, onError }: Props) {
   const [progress, setProgress] = useState(0);
   const [message, setMessage] = useState('正在連線...');
   const wsRef = useRef<WebSocket | null>(null);
+  const stepRef = useRef(step);
+  stepRef.current = step;
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
@@ -20,6 +22,7 @@ export default function ProgressModal({ taskId, onDone, onError }: Props) {
 
     ws.onmessage = (e) => {
       const data = JSON.parse(e.data);
+      if (data.step === 'ping') return; // heartbeat, ignore
       setStep(data.step);
       setProgress(data.progress);
       setMessage(data.message || data.step);
@@ -27,8 +30,18 @@ export default function ProgressModal({ taskId, onDone, onError }: Props) {
       if (data.step === 'error') setTimeout(onError, 2000);
     };
 
-    ws.onerror = () => { setStep('error'); setMessage('WebSocket 連線錯誤'); };
-    ws.onclose = () => { if (step !== 'done' && step !== 'error') { /* reconnect logic could go here */ } };
+    ws.onerror = () => {
+      if (stepRef.current !== 'done') {
+        setStep('ws_error');
+        setMessage('WebSocket 連線失敗，任務仍在背景執行中');
+      }
+    };
+    ws.onclose = () => {
+      if (stepRef.current !== 'done' && stepRef.current !== 'error' && stepRef.current !== 'ws_error') {
+        setStep('ws_error');
+        setMessage('WebSocket 連線中斷，任務仍在背景執行中');
+      }
+    };
 
     return () => { ws.close(); };
   }, [taskId]);
@@ -44,6 +57,7 @@ export default function ProgressModal({ taskId, onDone, onError }: Props) {
     report: '報告產生',
     done: '完成',
     error: '錯誤',
+    ws_error: '連線中斷',
   };
 
   return (
@@ -56,7 +70,7 @@ export default function ProgressModal({ taskId, onDone, onError }: Props) {
         <div className="w-full bg-gray-200 rounded-full h-4 mb-3">
           <div
             className={`h-4 rounded-full transition-all duration-300 ${
-              step === 'error' ? 'bg-red-500' : step === 'done' ? 'bg-green-500' : 'bg-blue-500'
+              step === 'error' || step === 'ws_error' ? 'bg-red-500' : step === 'done' ? 'bg-green-500' : 'bg-blue-500'
             }`}
             style={{ width: `${Math.max(progress, 2)}%` }}
           />
@@ -64,6 +78,25 @@ export default function ProgressModal({ taskId, onDone, onError }: Props) {
         <div className="text-xs text-gray-400">{message}</div>
         {step === 'done' && <div className="mt-4 text-green-600 font-medium">分析完成！即將跳轉...</div>}
         {step === 'error' && <div className="mt-4 text-red-600 font-medium">分析失敗：{message}</div>}
+        {step === 'ws_error' && (
+          <div className="mt-4">
+            <div className="text-amber-600 text-sm mb-3">連線已中斷，但任務仍在背景執行。</div>
+            <div className="flex gap-2">
+              <button
+                onClick={onDone}
+                className="flex-1 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 text-sm"
+              >
+                查看任務狀態
+              </button>
+              <button
+                onClick={onError}
+                className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-md hover:bg-gray-300 text-sm"
+              >
+                返回
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

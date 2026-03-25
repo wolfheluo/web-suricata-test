@@ -1,6 +1,7 @@
 """tshark-based PCAP analysis — flow, top IP, protocols, geo."""
 
 import ipaddress
+import os
 import subprocess
 from collections import defaultdict
 from datetime import datetime
@@ -186,6 +187,8 @@ def analyze_protocols(tshark_exe: str, pcap_paths: list[str]) -> dict:
 def analyze_geo(tshark_exe: str, pcap_paths: list[str],
                 geoip_db_path: str) -> dict[str, int]:
     """Return {country_code: bytes} sorted descending; private IP → 'LOCAL'."""
+    if not os.path.isfile(geoip_db_path):
+        return {}
     fields = ["ip.src", "ip.dst", "frame.len"]
     country_bytes: dict[str, int] = defaultdict(int)
 
