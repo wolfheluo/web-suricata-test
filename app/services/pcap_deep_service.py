@@ -109,39 +109,59 @@ def analyze_http(tshark_exe: str, pcap_paths: list[str]) -> dict[str, Any]:
 
 
 def analyze_tls(tshark_exe: str, pcap_paths: list[str]) -> dict[str, Any]:
-    """TLS analysis: SNI, versions, cipher suites."""
-    fields = ["tls.handshake.extensions_server_name",
-              "tls.record.version", "tls.handshake.ciphersuite"]
+    """TLS analysis: SNI, versions, cipher suites.
+
+    Two-pass approach:
+      1. tls.handshake for SNI + cipher suites (Client/Server Hello)
+      2. tls.record.version for all TLS records (broader coverage)
+    """
+    # --- Pass 1: handshake details (SNI + ciphers) ---
+    hs_fields = ["tls.handshake.extensions_server_name",
+                 "tls.handshake.ciphersuite"]
     sni_counter: Counter = Counter()
-    version_counter: Counter = Counter()
     cipher_counter: Counter = Counter()
     total_handshakes = 0
 
     for pcap in pcap_paths:
-        for line in _run_tshark(tshark_exe, pcap, fields, filter_expr="tls.handshake"):
+        for line in _run_tshark(tshark_exe, pcap, hs_fields,
+                                filter_expr="tls.handshake"):
             parts = line.split("|")
-            if len(parts) < 3:
+            if len(parts) < 2:
                 continue
-            sni, raw_version, cipher = (p.strip() for p in parts[:3])
+            sni, cipher = (p.strip() for p in parts[:2])
             total_handshakes += 1
             if sni:
                 sni_counter[sni] += 1
-            if raw_version:
-                try:
-                    ver_int = int(raw_version, 16) if raw_version.startswith("0x") \
-                              else int(raw_version)
-                    ver_str = TLS_VERSION_MAP.get(ver_int, f"Unknown(0x{ver_int:04x})")
-                except ValueError:
-                    ver_str = raw_version
-                version_counter[ver_str] += 1
             if cipher:
                 cipher_counter[cipher] += 1
+
+    # --- Pass 2: all TLS records for version distribution ---
+    ver_fields = ["tls.record.version"]
+    version_counter: Counter = Counter()
+    total_records = 0
+
+    for pcap in pcap_paths:
+        for line in _run_tshark(tshark_exe, pcap, ver_fields,
+                                filter_expr="tls"):
+            raw_version = line.strip()
+            if not raw_version:
+                continue
+            total_records += 1
+            try:
+                ver_int = int(raw_version, 16) if raw_version.startswith("0x") \
+                          else int(raw_version)
+                ver_str = TLS_VERSION_MAP.get(ver_int, f"Unknown(0x{ver_int:04x})")
+            except ValueError:
+                ver_str = raw_version
+            version_counter[ver_str] += 1
 
     return {
         "top_sni": [{"sni": s, "count": c} for s, c in sni_counter.most_common(20)],
         "version_dist": dict(version_counter),
-        "cipher_suite_dist": [{"cipher": c, "count": n} for c, n in cipher_counter.most_common(15)],
+        "cipher_suite_dist": [{"cipher": c, "count": n}
+                              for c, n in cipher_counter.most_common(15)],
         "total_handshakes": total_handshakes,
+        "total_records": total_records,
     }
 
 

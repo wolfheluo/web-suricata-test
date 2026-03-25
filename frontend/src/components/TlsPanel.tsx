@@ -5,6 +5,7 @@ interface TlsData {
   version_dist: Record<string, number>;
   cipher_suite_dist: { cipher: string; count: number }[];
   total_handshakes?: number;
+  total_records?: number;
 }
 
 interface Props {
@@ -16,6 +17,16 @@ const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'
 export default function TlsPanel({ data }: Props) {
   if (!data) return <div className="text-gray-500">無 TLS 深度資料</div>;
 
+  if ((data.total_handshakes ?? 0) === 0 && (data.total_records ?? 0) === 0 && (data.top_sni ?? []).length === 0) {
+    return (
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center">
+        <div className="text-4xl mb-3">🔒</div>
+        <div className="text-yellow-800 font-semibold text-lg">未偵測到 TLS 交握資料</div>
+        <div className="text-yellow-600 text-sm mt-1">此 PCAP 可能僅包含 TLS 資料傳輸封包，未捕獲到交握過程（Client Hello / Server Hello）。</div>
+      </div>
+    );
+  }
+
   const versionData = Object.entries(data.version_dist ?? {}).map(([name, value]) => ({ name, value }));
   const cipherData = (data.cipher_suite_dist ?? []).slice(0, 10).map((c) => ({
     name: c.cipher.length > 30 ? c.cipher.slice(0, 27) + '...' : c.cipher,
@@ -26,10 +37,14 @@ export default function TlsPanel({ data }: Props) {
   return (
     <div className="space-y-6">
       {/* Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg shadow p-5 border-l-4 border-blue-500">
           <div className="text-xs text-gray-500 uppercase tracking-wide">總握手數</div>
           <div className="text-2xl font-bold text-blue-700 mt-1">{(data.total_handshakes ?? 0).toLocaleString()}</div>
+        </div>
+        <div className="bg-white rounded-lg shadow p-5 border-l-4 border-cyan-500">
+          <div className="text-xs text-gray-500 uppercase tracking-wide">總 TLS 記錄數</div>
+          <div className="text-2xl font-bold text-cyan-700 mt-1">{(data.total_records ?? 0).toLocaleString()}</div>
         </div>
         <div className="bg-white rounded-lg shadow p-5 border-l-4 border-green-500">
           <div className="text-xs text-gray-500 uppercase tracking-wide">不同 SNI 數</div>

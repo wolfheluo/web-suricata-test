@@ -26,6 +26,16 @@ const statusColor = (code: string) => {
 export default function HttpPanel({ data }: Props) {
   if (!data) return <div className="text-gray-500">無 HTTP 深度資料</div>;
 
+  if ((data.total_requests ?? 0) === 0 && (data.top_hosts ?? []).length === 0) {
+    return (
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center">
+        <div className="text-4xl mb-3">📄</div>
+        <div className="text-yellow-800 font-semibold text-lg">未偵測到 HTTP 流量</div>
+        <div className="text-yellow-600 text-sm mt-1">此 PCAP 檔案中無明文 HTTP 請求。若流量為 HTTPS，請查看 TLS 分析頁籤。</div>
+      </div>
+    );
+  }
+
   const methodData = Object.entries(data.method_dist ?? {}).map(([name, value]) => ({ name, value }));
   const statusData = Object.entries(data.status_code_dist ?? {})
     .map(([name, value]) => ({ name, value }))

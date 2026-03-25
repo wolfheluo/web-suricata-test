@@ -17,6 +17,16 @@ const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'
 export default function DnsPanel({ data }: Props) {
   if (!data) return <div className="text-gray-500">無 DNS 深度資料</div>;
 
+  if ((data.total_queries ?? 0) === 0 && (data.top_queries ?? []).length === 0) {
+    return (
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center">
+        <div className="text-4xl mb-3">🌐</div>
+        <div className="text-yellow-800 font-semibold text-lg">未偵測到 DNS 流量</div>
+        <div className="text-yellow-600 text-sm mt-1">此 PCAP 檔案中無 DNS 查詢紀錄。</div>
+      </div>
+    );
+  }
+
   const topQueryData = (data.top_queries ?? []).slice(0, 10).map((q) => ({
     name: q.qname.length > 25 ? q.qname.slice(0, 22) + '...' : q.qname,
     count: q.count,
