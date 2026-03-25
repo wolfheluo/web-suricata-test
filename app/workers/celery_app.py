@@ -21,4 +21,4 @@ celery_app.conf.update(
     worker_concurrency=settings.MAX_WORKER_CONCURRENCY,
 )
 
-celery_app.autodiscover_tasks(["app.workers"])
+celery_app.autodiscover_tasks(["app.workers"], related_name="analysis_task")

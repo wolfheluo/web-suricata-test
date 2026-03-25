@@ -1,6 +1,6 @@
 """NAS browsing endpoints."""
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.models.user import User
 from app.routers.auth import get_current_user
@@ -19,6 +19,34 @@ async def list_projects(_user: User = Depends(get_current_user)):
             detail={"error": "INTERNAL_ERROR", "message": "NAS 掛載點不可用", "detail": None},
         )
     return {"data": {"projects": projects}, "message": "ok"}
+
+
+@router.get("/browse")
+async def browse_directory(
+    path: str = Query("", description="Relative subpath under NAS mount"),
+    _user: User = Depends(get_current_user),
+):
+    """Browse NAS directory at any level, returning subfolders and PCAP files."""
+    try:
+        result = nas_service.browse_directory(path)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": "VALIDATION_ERROR", "message": str(e), "detail": None},
+        )
+    except FileNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"error": "NOT_FOUND", "message": str(e), "detail": None},
+        )
+    return {
+        "data": {
+            "path": path,
+            "folders": result["folders"],
+            "files": result["files"],
+        },
+        "message": "ok",
+    }
 
 
 @router.get("/projects/{project_name}/files")

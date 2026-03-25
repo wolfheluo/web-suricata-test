@@ -9,29 +9,49 @@ interface FileInfo {
 }
 
 export default function NewTaskPage() {
-  const [projects, setProjects] = useState<string[]>([]);
-  const [selectedProject, setSelectedProject] = useState('');
+  /* Folder navigation state */
+  const [pathSegments, setPathSegments] = useState<string[]>([]);
+  const [folders, setFolders] = useState<string[]>([]);
   const [files, setFiles] = useState<FileInfo[]>([]);
+  const [browsing, setBrowsing] = useState(false);
+
+  /* Task creation state */
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [taskName, setTaskName] = useState('');
   const [loading, setLoading] = useState(false);
   const [taskId, setTaskId] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    client.get('/api/v1/nas/projects').then(({ data }) => {
-      setProjects(data.data.projects);
-    });
-  }, []);
+  const currentPath = pathSegments.join('/');
 
+  /* Load directory contents whenever path changes */
   useEffect(() => {
-    if (!selectedProject) { setFiles([]); return; }
-    client.get(`/api/v1/nas/projects/${selectedProject}/files`).then(({ data }) => {
-      const f: FileInfo[] = data.data.files;
-      setFiles(f);
-      setSelectedFiles(new Set(f.map((x) => x.name)));
-    });
-  }, [selectedProject]);
+    setBrowsing(true);
+    client
+      .get('/api/v1/nas/browse', { params: { path: currentPath } })
+      .then(({ data }) => {
+        setFolders(data.data.folders);
+        const f: FileInfo[] = data.data.files;
+        setFiles(f);
+        // Auto-select all pcap files when entering a folder
+        setSelectedFiles(new Set(f.map((x) => x.name)));
+      })
+      .catch(() => {
+        setFolders([]);
+        setFiles([]);
+      })
+      .finally(() => setBrowsing(false));
+  }, [currentPath]);
+
+  /* Navigate into a subfolder */
+  const enterFolder = (name: string) => {
+    setPathSegments((prev) => [...prev, name]);
+  };
+
+  /* Navigate to a specific breadcrumb level (-1 = root) */
+  const goToLevel = (index: number) => {
+    setPathSegments((prev) => prev.slice(0, index + 1));
+  };
 
   const toggleFile = (name: string) => {
     const next = new Set(selectedFiles);
@@ -54,15 +74,17 @@ export default function NewTaskPage() {
     return `${b} B`;
   };
 
-  const totalSelected = files.filter((f) => selectedFiles.has(f.name)).reduce((s, f) => s + f.size_bytes, 0);
+  const totalSelected = files
+    .filter((f) => selectedFiles.has(f.name))
+    .reduce((s, f) => s + f.size_bytes, 0);
 
   const handleSubmit = async () => {
-    if (!taskName || !selectedProject || selectedFiles.size === 0) return;
+    if (!taskName || !currentPath || selectedFiles.size === 0) return;
     setLoading(true);
     try {
       const { data } = await client.post('/api/v1/tasks', {
         name: taskName,
-        nas_project: selectedProject,
+        nas_project: currentPath,
         pcap_files: [...selectedFiles],
       });
       const id = data.data.id;
@@ -88,7 +110,9 @@ export default function NewTaskPage() {
       <nav className="bg-white shadow">
         <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
           <h1 className="text-xl font-bold text-gray-800">新增分析任務</h1>
-          <Link to="/tasks" className="text-gray-500 hover:text-gray-700 text-sm">返回列表</Link>
+          <Link to="/tasks" className="text-gray-500 hover:text-gray-700 text-sm">
+            返回列表
+          </Link>
         </div>
       </nav>
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
@@ -104,19 +128,62 @@ export default function NewTaskPage() {
           />
         </div>
 
-        {/* Project Selector */}
+        {/* Folder Navigator */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <label className="block text-sm font-medium text-gray-700 mb-2">NAS 專案資料夾</label>
-          <select
-            value={selectedProject}
-            onChange={(e) => setSelectedProject(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">— 選擇專案 —</option>
-            {projects.map((p) => (
-              <option key={p} value={p}>{p}</option>
+          <label className="block text-sm font-medium text-gray-700 mb-2">NAS 資料夾路徑</label>
+
+          {/* Breadcrumb */}
+          <div className="flex items-center flex-wrap gap-1 mb-4 text-sm bg-gray-50 px-3 py-2 rounded-md">
+            <button
+              onClick={() => goToLevel(-1)}
+              className={`hover:text-blue-600 ${pathSegments.length === 0 ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}
+            >
+              NAS 根目錄
+            </button>
+            {pathSegments.map((seg, i) => (
+              <span key={i} className="flex items-center gap-1">
+                <span className="text-gray-400">/</span>
+                <button
+                  onClick={() => goToLevel(i)}
+                  className={`hover:text-blue-600 ${i === pathSegments.length - 1 ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}
+                >
+                  {seg}
+                </button>
+              </span>
             ))}
-          </select>
+          </div>
+
+          {/* Folder List */}
+          {browsing ? (
+            <div className="text-center text-gray-400 py-4">載入中...</div>
+          ) : folders.length > 0 ? (
+            <div className="max-h-64 overflow-y-auto divide-y divide-gray-100 border border-gray-200 rounded-md">
+              {folders.map((f) => (
+                <button
+                  key={f}
+                  onClick={() => enterFolder(f)}
+                  className="w-full flex items-center px-3 py-2.5 hover:bg-blue-50 text-left transition"
+                >
+                  <svg className="w-5 h-5 text-yellow-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                  </svg>
+                  <span className="text-sm text-gray-700">{f}</span>
+                  <svg className="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              ))}
+            </div>
+          ) : files.length === 0 ? (
+            <div className="text-center text-gray-400 py-4">此資料夾為空</div>
+          ) : null}
+
+          {/* Current selection hint */}
+          {currentPath && (
+            <div className="mt-3 text-xs text-gray-500">
+              已選擇路徑：<span className="font-mono text-gray-700">{currentPath}</span>
+            </div>
+          )}
         </div>
 
         {/* File List */}
@@ -150,7 +217,7 @@ export default function NewTaskPage() {
         {/* Submit */}
         <button
           onClick={handleSubmit}
-          disabled={loading || !taskName || !selectedProject || selectedFiles.size === 0}
+          disabled={loading || !taskName || !currentPath || selectedFiles.size === 0}
           className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 disabled:opacity-50 transition font-medium"
         >
           {loading ? '處理中...' : '開始分析'}
