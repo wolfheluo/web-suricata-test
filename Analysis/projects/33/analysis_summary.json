@@ -1,0 +1,530 @@
+{
+  "summary": {
+    "total_files_processed": 1,
+    "analysis_timestamp": "2026-03-26 10:39:38",
+    "filter_settings": {
+      "filtered_ips": [],
+      "total_filtered_ips": 0,
+      "total_filtered_packets": 0
+    }
+  },
+  "flow": {
+    "start_time": "2026-02-12T15:49:18.863026",
+    "end_time": "2026-02-12T15:49:26.296426",
+    "total_bytes": 195762615,
+    "per_10_minutes": {
+      "2026-02-12 15:40": 195762615
+    },
+    "top_ip_per_10_minutes": {
+      "2026-02-12 15:40": [
+        {
+          "connection": "103.186.142.8:80 -> 10.10.10.213:50611",
+          "bytes": 21967762
+        },
+        {
+          "connection": "103.186.142.8:80 -> 10.10.10.213:50610",
+          "bytes": 16704760
+        },
+        {
+          "connection": "202.39.67.78:443 -> 10.19.1.168:55783",
+          "bytes": 14615594
+        },
+        {
+          "connection": "203.74.65.161:443 -> 192.168.20.207:60547",
+          "bytes": 11728320
+        },
+        {
+          "connection": "203.74.65.225:443 -> 192.168.20.207:58833",
+          "bytes": 11685196
+        }
+      ]
+    },
+    "total_filtered_packets": 0
+  },
+  "top_ip": [
+    {
+      "connection": "103.186.142.8:80 -> 10.10.10.213:50611",
+      "bytes": 21967762,
+      "protocol": "TCP",
+      "top_3_time_periods": [
+        {
+          "rank": 1,
+          "time_period": "2026-02-12 15:40",
+          "bytes": 21967762,
+          "percentage_of_total": 11.22
+        }
+      ]
+    },
+    {
+      "connection": "103.186.142.8:80 -> 10.10.10.213:50610",
+      "bytes": 16704760,
+      "protocol": "TCP",
+      "top_3_time_periods": [
+        {
+          "rank": 1,
+          "time_period": "2026-02-12 15:40",
+          "bytes": 16704760,
+          "percentage_of_total": 8.53
+        }
+      ]
+    },
+    {
+      "connection": "202.39.67.78:443 -> 10.19.1.168:55783",
+      "bytes": 14615594,
+      "protocol": "UDP",
+      "top_3_time_periods": [
+        {
+          "rank": 1,
+          "time_period": "2026-02-12 15:40",
+          "bytes": 14615594,
+          "percentage_of_total": 7.47
+        }
+      ]
+    },
+    {
+      "connection": "203.74.65.161:443 -> 192.168.20.207:60547",
+      "bytes": 11728320,
+      "protocol": "UDP",
+      "top_3_time_periods": [
+        {
+          "rank": 1,
+          "time_period": "2026-02-12 15:40",
+          "bytes": 11728320,
+          "percentage_of_total": 5.99
+        }
+      ]
+    },
+    {
+      "connection": "203.74.65.225:443 -> 192.168.20.207:58833",
+      "bytes": 11685196,
+      "protocol": "UDP",
+      "top_3_time_periods": [
+        {
+          "rank": 1,
+          "time_period": "2026-02-12 15:40",
+          "bytes": 11685196,
+          "percentage_of_total": 5.97
+        }
+      ]
+    },
+    {
+      "connection": "10.13.20.235:49584 -> 35.163.78.168:443",
+      "bytes": 6627886,
+      "protocol": "TCP",
+      "top_3_time_periods": [
+        {
+          "rank": 1,
+          "time_period": "2026-02-12 15:40",
+          "bytes": 6627886,
+          "percentage_of_total": 3.39
+        }
+      ]
+    },
+    {
+      "connection": "203.74.65.33:443 -> 192.168.20.207:50098",
+      "bytes": 5937564,
+      "protocol": "UDP",
+      "top_3_time_periods": [
+        {
+          "rank": 1,
+          "time_period": "2026-02-12 15:40",
+          "bytes": 5937564,
+          "percentage_of_total": 3.03
+        }
+      ]
+    },
+    {
+      "connection": "203.74.65.97:443 -> 192.168.20.207:62654",
+      "bytes": 5042792,
+      "protocol": "UDP",
+      "top_3_time_periods": [
+        {
+          "rank": 1,
+          "time_period": "2026-02-12 15:40",
+          "bytes": 5042792,
+          "percentage_of_total": 2.58
+        }
+      ]
+    },
+    {
+      "connection": "210.243.40.57:8080 -> 10.13.20.61:60138",
+      "bytes": 5001436,
+      "protocol": "TCP",
+      "top_3_time_periods": [
+        {
+          "rank": 1,
+          "time_period": "2026-02-12 15:40",
+          "bytes": 5001436,
+          "percentage_of_total": 2.55
+        }
+      ]
+    },
+    {
+      "connection": "10.13.20.235:57604 -> 35.163.78.168:443",
+      "bytes": 4614932,
+      "protocol": "TCP",
+      "top_3_time_periods": [
+        {
+          "rank": 1,
+          "time_period": "2026-02-12 15:40",
+          "bytes": 4614932,
+          "percentage_of_total": 2.36
+        }
+      ]
+    }
+  ],
+  "event": {
+    "TCP": {
+      "count": 126692,
+      "top_ip": "103.186.142.8",
+      "detailed_stats": [
+        {
+          "src_ip": "103.186.142.8",
+          "dst_ip": "10.10.10.213",
+          "packet_count": 25674,
+          "packet_size": 38650067
+        },
+        {
+          "src_ip": "210.243.40.57",
+          "dst_ip": "10.13.20.61",
+          "packet_count": 13568,
+          "packet_size": 19539559
+        },
+        {
+          "src_ip": "210.243.40.57",
+          "dst_ip": "10.10.20.213",
+          "packet_count": 10364,
+          "packet_size": 14922122
+        },
+        {
+          "src_ip": "10.13.20.235",
+          "dst_ip": "35.163.78.168",
+          "packet_count": 7248,
+          "packet_size": 10605497
+        },
+        {
+          "src_ip": "103.186.142.8",
+          "dst_ip": "10.10.20.96",
+          "packet_count": 5023,
+          "packet_size": 7389191
+        }
+      ]
+    },
+    "DNS": {
+      "count": 1332,
+      "top_ip": "210.243.40.110",
+      "detailed_stats": [
+        {
+          "src_ip": "210.243.40.110",
+          "dst_ip": "168.95.1.1",
+          "packet_count": 204,
+          "packet_size": 19280
+        },
+        {
+          "src_ip": "210.243.40.110",
+          "dst_ip": "10.11.10.108",
+          "packet_count": 106,
+          "packet_size": 16370
+        },
+        {
+          "src_ip": "210.243.40.110",
+          "dst_ip": "10.10.20.96",
+          "packet_count": 36,
+          "packet_size": 8396
+        },
+        {
+          "src_ip": "10.11.10.108",
+          "dst_ip": "210.243.40.110",
+          "packet_count": 102,
+          "packet_size": 7788
+        },
+        {
+          "src_ip": "210.243.40.110",
+          "dst_ip": "10.10.10.147",
+          "packet_count": 24,
+          "packet_size": 4610
+        }
+      ]
+    },
+    "TLS": {
+      "count": 6653,
+      "top_ip": "10.11.10.108",
+      "detailed_stats": [
+        {
+          "src_ip": "34.160.217.38",
+          "dst_ip": "10.11.10.108",
+          "packet_count": 865,
+          "packet_size": 1249620
+        },
+        {
+          "src_ip": "210.243.40.253",
+          "dst_ip": "192.168.10.225",
+          "packet_count": 615,
+          "packet_size": 902908
+        },
+        {
+          "src_ip": "10.13.20.235",
+          "dst_ip": "35.163.78.168",
+          "packet_count": 664,
+          "packet_size": 637321
+        },
+        {
+          "src_ip": "210.243.40.253",
+          "dst_ip": "192.168.10.224",
+          "packet_count": 211,
+          "packet_size": 284324
+        },
+        {
+          "src_ip": "223.200.181.39",
+          "dst_ip": "10.10.20.138",
+          "packet_count": 168,
+          "packet_size": 250090
+        }
+      ]
+    },
+    "HTTP": {
+      "count": 1410,
+      "top_ip": "210.243.40.57",
+      "detailed_stats": [
+        {
+          "src_ip": "210.243.40.57",
+          "dst_ip": "10.10.20.213",
+          "packet_count": 200,
+          "packet_size": 164564
+        },
+        {
+          "src_ip": "210.243.40.57",
+          "dst_ip": "10.13.20.61",
+          "packet_count": 208,
+          "packet_size": 164069
+        },
+        {
+          "src_ip": "10.13.20.61",
+          "dst_ip": "210.243.40.57",
+          "packet_count": 209,
+          "packet_size": 138256
+        },
+        {
+          "src_ip": "10.10.20.213",
+          "dst_ip": "210.243.40.57",
+          "packet_count": 199,
+          "packet_size": 137366
+        },
+        {
+          "src_ip": "10.13.20.61",
+          "dst_ip": "210.243.40.94",
+          "packet_count": 66,
+          "packet_size": 87534
+        }
+      ]
+    },
+    "DHCP": {
+      "count": 9,
+      "top_ip": "210.243.40.66",
+      "detailed_stats": [
+        {
+          "src_ip": "192.168.10.254",
+          "dst_ip": "210.243.40.66",
+          "packet_count": 4,
+          "packet_size": 1416
+        },
+        {
+          "src_ip": "10.10.10.197",
+          "dst_ip": "210.243.40.66",
+          "packet_count": 2,
+          "packet_size": 738
+        },
+        {
+          "src_ip": "210.243.40.66",
+          "dst_ip": "10.10.10.197",
+          "packet_count": 2,
+          "packet_size": 684
+        },
+        {
+          "src_ip": "10.13.20.254",
+          "dst_ip": "210.243.40.66",
+          "packet_count": 1,
+          "packet_size": 323
+        }
+      ]
+    },
+    "SMB2": {
+      "count": 1250,
+      "top_ip": "210.243.40.110",
+      "detailed_stats": [
+        {
+          "src_ip": "210.243.40.110",
+          "dst_ip": "192.168.10.165",
+          "packet_count": 248,
+          "packet_size": 68242
+        },
+        {
+          "src_ip": "192.168.10.165",
+          "dst_ip": "210.243.40.110",
+          "packet_count": 247,
+          "packet_size": 59346
+        },
+        {
+          "src_ip": "210.243.41.88",
+          "dst_ip": "192.168.4.6",
+          "packet_count": 79,
+          "packet_size": 48836
+        },
+        {
+          "src_ip": "210.243.40.110",
+          "dst_ip": "210.243.44.115",
+          "packet_count": 141,
+          "packet_size": 41530
+        },
+        {
+          "src_ip": "210.243.44.115",
+          "dst_ip": "210.243.40.110",
+          "packet_count": 140,
+          "packet_size": 35237
+        }
+      ]
+    },
+    "SNMP": {
+      "count": 60,
+      "top_ip": "10.10.10.135",
+      "detailed_stats": [
+        {
+          "src_ip": "192.168.10.202",
+          "dst_ip": "10.10.10.135",
+          "packet_count": 16,
+          "packet_size": 2090
+        },
+        {
+          "src_ip": "10.10.10.135",
+          "dst_ip": "192.168.10.202",
+          "packet_count": 16,
+          "packet_size": 2042
+        },
+        {
+          "src_ip": "192.168.0.10",
+          "dst_ip": "192.168.0.10",
+          "packet_count": 4,
+          "packet_size": 616
+        },
+        {
+          "src_ip": "192.168.10.235",
+          "dst_ip": "210.243.40.253",
+          "packet_count": 2,
+          "packet_size": 388
+        },
+        {
+          "src_ip": "10.10.20.175",
+          "dst_ip": "210.243.42.240",
+          "packet_count": 4,
+          "packet_size": 336
+        }
+      ]
+    },
+    "ICMP": {
+      "count": 80,
+      "top_ip": "192.168.10.235,192.168.180.27",
+      "detailed_stats": [
+        {
+          "src_ip": "192.168.10.235",
+          "dst_ip": "210.243.40.253",
+          "packet_count": 80,
+          "packet_size": 13760
+        }
+      ]
+    },
+    "SMB": {
+      "count": 4,
+      "top_ip": "210.243.40.110",
+      "detailed_stats": [
+        {
+          "src_ip": "192.168.10.108",
+          "dst_ip": "210.243.40.1",
+          "packet_count": 1,
+          "packet_size": 127
+        },
+        {
+          "src_ip": "10.10.20.69",
+          "dst_ip": "210.243.40.110",
+          "packet_count": 1,
+          "packet_size": 127
+        },
+        {
+          "src_ip": "192.168.10.165",
+          "dst_ip": "210.243.40.110",
+          "packet_count": 1,
+          "packet_size": 127
+        },
+        {
+          "src_ip": "210.243.44.115",
+          "dst_ip": "210.243.40.110",
+          "packet_count": 1,
+          "packet_size": 127
+        }
+      ]
+    },
+    "OTHER": {
+      "count": 69735,
+      "top_ip": "192.168.20.207",
+      "detailed_stats": [
+        {
+          "src_ip": "202.39.67.78",
+          "dst_ip": "10.19.1.168",
+          "packet_count": 11328,
+          "packet_size": 14615594
+        },
+        {
+          "src_ip": "203.74.65.161",
+          "dst_ip": "192.168.20.207",
+          "packet_count": 9344,
+          "packet_size": 11728320
+        },
+        {
+          "src_ip": "203.74.65.225",
+          "dst_ip": "192.168.20.207",
+          "packet_count": 9246,
+          "packet_size": 11685196
+        },
+        {
+          "src_ip": "203.74.65.33",
+          "dst_ip": "192.168.20.207",
+          "packet_count": 4742,
+          "packet_size": 5937564
+        },
+        {
+          "src_ip": "203.74.65.97",
+          "dst_ip": "192.168.20.207",
+          "packet_count": 4036,
+          "packet_size": 5042792
+        }
+      ]
+    }
+  },
+  "geo": {
+    "LOCAL": 193577398,
+    "TW": 169248390,
+    "US": 27542056,
+    "SG": 381458,
+    "JP": 192304,
+    "GB": 119702,
+    "CN": 101390,
+    "BR": 99334,
+    "FR": 76968,
+    "IE": 64212,
+    "UNKNOWN": 60086,
+    "HK": 15132,
+    "MY": 10162,
+    "KR": 5428,
+    "NL": 3674,
+    "DE": 2460,
+    "CH": 2416,
+    "SE": 2170,
+    "AU": 2046,
+    "IN": 1704,
+    "CA": 1060,
+    "AT": 846,
+    "ES": 580,
+    "RS": 430,
+    "CO": 430,
+    "AE": 430
+  }
+}
